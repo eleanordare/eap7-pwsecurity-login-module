@@ -15,7 +15,7 @@ public class CustomLoginModule extends UsernamePasswordLoginModule {
 
 	@Override
 	public boolean login(){
-		return PWSecurityImpl.login(username, password);
+		return PWSecurityImpl.login(getUsername(), getUsersPassword());
 	}
 	
 	@SuppressWarnings("rawtypes")
@@ -23,26 +23,6 @@ public class CustomLoginModule extends UsernamePasswordLoginModule {
 			Map sharedState, Map options) {
 
 		super.initialize(subject, callbackHandler, sharedState, options);
-	}
-
-	/**
-	 * Compares the result of this method with the entered password.
-	 * If validatePassword isn't overridden here, it will do a String compare.
-	 */
-	@Override
-	protected String getUsersPassword() throws LoginException {
-
-		System.out.println("Authenticating user " + getUsername());
-
-		String password = super.getUsername();
-		return password;
-	}
-
-	@Override
-	protected boolean validatePassword(String inputPassword,
-			String expectedPassword) {
-
-		return true;
 	}
 
 	/**
@@ -57,20 +37,18 @@ public class CustomLoginModule extends UsernamePasswordLoginModule {
 		PWPermission[] permissions = getAllPermissions(getUsername(), getApplicationId());
 		for (PWPermission i : permissions) {
 			group.addMember(new SimplePrincipal(i));
-			
 		}
 		
-		try {
-			group.addMember(new SimplePrincipal("admin"));
-		} catch (Exception e) {
-			throw new LoginException("Failed to create group member for "
-					+ group);
-		}
 
 		System.out.println("Role for user " + getUsername() + ": "
 				+ group.members().nextElement().toString());
 
 		return new Group[] { group };
+	}
+
+	@Override
+	protected String getUsersPassword() throws LoginException {
+		return null;
 	}
 
 }
